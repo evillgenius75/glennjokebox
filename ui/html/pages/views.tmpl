@@ -1,0 +1,17 @@
+{{ define "title"}} Joke #{{.Joke.ID}}{{end}}
+
+{{define "main"}}
+    <div class='joke'>
+		<div class='metadata'>
+			<strong>{{.Joke.UUID}}</strong>
+            <span>#{{.Joke.ID}}</span>
+        </div>
+        <div class='content'>
+            <pre>{{.Joke.Joke}}</pre>
+        </div>
+        <div class='metadata'>
+			<time>Created: {{.Joke.CreatedAt}}</time>
+            <time>Updated: {{.Joke.UpdatedAt}}</time>
+        </div>
+    </div>
+{{end}}
