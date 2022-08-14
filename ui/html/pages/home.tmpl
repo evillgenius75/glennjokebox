@@ -3,5 +3,22 @@
 
 {{ define "main" }}
             <h2>Latest Jokes</h2>
-            <p>There's nothing to see here yet!</p>
+            {{if .Jokes}}
+			<table>
+				<tr>
+				    <th>ID</th>
+				    <th>Joke</th>
+				    <th>Created</th>
+				</tr>
+				{{range .Jokes}}
+				<tr>
+					<td>#{{.ID}}</td>
+                    <td><a class='long-and-truncated' href='/joke/view?id={{.ID}}'>{{.Joke}}</a></td>
+                    <td>{{.CreatedAt}}</td>
+                </tr>
+                {{end}}
+            </table>
+            {{else}}
+            <p>There's nothing to see here....yet!</p>
+			{{end}}
 {{ end }}

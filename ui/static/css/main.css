@@ -54,6 +54,8 @@ h2 {
 a {
     color: #62CB31;
     text-decoration: none;
+    text-overflow: ellipsis;
+    overflow-wrap: normal;
 }
 
 a:hover {
@@ -291,6 +293,7 @@ table {
 td, th {
     text-align: left;
     padding: 9px 18px;
+    text-overflow: ellipsis;
 }
 
 th:last-child, td:last-child {
@@ -314,4 +317,12 @@ footer {
     height: 60px;
     color: #6A6C6F;
     text-align: center;
+}
+
+.long-and-truncated {
+    flex: 1;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
