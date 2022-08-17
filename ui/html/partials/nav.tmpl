@@ -1,6 +1,15 @@
 {{ define "nav" }}
 <nav>
-	<a href='/'>Home</a>
-	<a href='/v1/joke/create'>Create Joke</a>
+	<div>
+		<a href='/'>Home</a>
+		<a href='/v1/joke/create'>Create Joke</a>
+	</div>
+	<div>
+		<a href='/v1/user/signup'>Signup</a>
+		<a href='/v1/user/login'>Login</a>
+		<form action='/v1/user/logout' method="POST">
+			<button>Logout</button>
+		</form>
+	</div>
 </nav>
 {{ end }}

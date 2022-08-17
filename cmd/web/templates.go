@@ -12,6 +12,7 @@ type templateData struct {
 	Joke        *models.Joke
 	Jokes       []*models.Joke
 	Form        any
+	Flash       string
 }
 
 func newTemplateCache() (map[string]*template.Template, error) {
