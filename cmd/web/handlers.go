@@ -4,51 +4,35 @@ import (
 	"errors"
 	"fmt"
 	"github.com/evillgenius75/glennjokebox/internal/models"
-	"html/template"
+	"github.com/evillgenius75/glennjokebox/internal/validator"
+	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"strconv"
 )
 
-func (app *application) home(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
-		app.notFound(w)
-		return
-	}
+type jokeCreateForm struct {
+	UserName string
+	Content  string
+	Explicit int
+	validator.Validator
+}
 
+func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	jokes, err := app.jokes.Latest()
 	if err != nil {
 		app.serverError(w, err)
 		return
 	}
 
-	//for _, joke := range jokes {
-	//	fmt.Fprintf(w, "%v+\n", joke)
-	//}
+	data := app.newTemplateData(r)
+	data.Jokes = jokes
 
-	files := []string{
-		"./ui/html/base.tmpl",
-		"./ui/html/pages/home.tmpl",
-		"./ui/html/partials/nav.tmpl",
-	}
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-
-	data := &templateData{
-		Jokes: jokes,
-	}
-
-	err = ts.ExecuteTemplate(w, "base", data)
-	if err != nil {
-		app.serverError(w, err)
-	}
+	app.render(w, http.StatusOK, "home.tmpl", data)
 }
 
 func (app *application) jokeView(w http.ResponseWriter, r *http.Request) {
-
-	id, err := strconv.Atoi(r.URL.Query().Get("id"))
+	params := httprouter.ParamsFromContext(r.Context())
+	id, err := strconv.Atoi(params.ByName("id"))
 	if err != nil || id < 1 {
 		app.notFound(w)
 		return
@@ -64,46 +48,59 @@ func (app *application) jokeView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	files := []string{
-		"./ui/html/base.tmpl",
-		"./ui/html/pages/views.tmpl",
-		"./ui/html/partials/nav.tmpl",
-	}
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-
-	data := &templateData{
-		Joke: joke,
-	}
-
-	err = ts.ExecuteTemplate(w, "base", data)
-	if err != nil {
-		app.serverError(w, err)
-	}
-
-	//w.Write([]byte("Display a random Joke from DB..."))
-	//fmt.Fprintf(w, "%+v", joke)
+	data := app.newTemplateData(r)
+	data.Joke = joke
+	app.render(w, http.StatusOK, "views.tmpl", data)
 }
 
 func (app *application) jokeCreate(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		w.Header().Set("Allow", http.MethodPost)
-		app.clientError(w, http.StatusMethodNotAllowed)
+	data := app.newTemplateData(r)
+
+	data.Form = jokeCreateForm{
+		Explicit: 0,
+	}
+
+	app.render(w, http.StatusOK, "create.tmpl", data)
+}
+
+func (app *application) jokeCreatePost(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
 		return
 	}
-	uuid := "sadfe87viha"
-	joke := "I spent a whole bunch of money childproofing my house. It doesn't seem to be working because they still keep coming in!"
 
-	id, err := app.jokes.Insert(uuid, joke)
+	explicit, err := strconv.Atoi(r.PostForm.Get("explicit"))
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	form := jokeCreateForm{
+		UserName: r.PostForm.Get("username"),
+		Content:  r.PostForm.Get("content"),
+		Explicit: explicit,
+	}
+
+	form.CheckField(validator.NotBlank(form.UserName), "username", "This field cannot be blank")
+	form.CheckField(validator.MaxChars(form.UserName, 100), "username", "This field cannot be more that 100 characters long")
+
+	form.CheckField(validator.NotBlank(form.Content), "content", "This field cannot be blank")
+
+	if !form.Valid() {
+		data := app.newTemplateData(r)
+		data.Form = form
+		app.render(w, http.StatusUnprocessableEntity, "create.tmpl", data)
+		return
+	}
+
+	id, err := app.jokes.Insert(form.UserName, form.Content, form.Explicit)
 	if err != nil {
 		app.serverError(w, err)
 		return
 	}
 
-	http.Redirect(w, r, fmt.Sprintf("/joke/view?id=%d", id), http.StatusSeeOther)
+	http.Redirect(w, r, fmt.Sprintf("/v1/joke/view/%d", id), http.StatusSeeOther)
 
 	//w.Write([]byte("Create a new joke..."))
 }

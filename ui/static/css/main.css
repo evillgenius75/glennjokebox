@@ -52,10 +52,8 @@ h2 {
 }
 
 a {
-    color: #62CB31;
-    text-decoration: none;
-    text-overflow: ellipsis;
-    overflow-wrap: normal;
+    color: cadetblue;
+    width: 300px;
 }
 
 a:hover {
@@ -319,10 +317,4 @@ footer {
     text-align: center;
 }
 
-.long-and-truncated {
-    flex: 1;
 
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}

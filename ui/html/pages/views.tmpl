@@ -10,8 +10,8 @@
             <pre>{{.Joke.Joke}}</pre>
         </div>
         <div class='metadata'>
-			<time>Created: {{.Joke.CreatedAt}}</time>
-            <time>Updated: {{.Joke.UpdatedAt}}</time>
+			<time>Created: {{humanDate .Joke.CreatedAt}}</time>
+            <time>Updated: {{humanDate .Joke.UpdatedAt}}</time>
         </div>
     </div>
 {{end}}

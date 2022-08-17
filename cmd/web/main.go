@@ -5,6 +5,7 @@ import (
 	"flag"
 	"github.com/evillgenius75/glennjokebox/internal/models"
 	_ "github.com/go-sql-driver/mysql"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -17,9 +18,10 @@ type config struct {
 }
 
 type application struct {
-	errorLog *log.Logger
-	infoLog  *log.Logger
-	jokes    *models.JokeModel
+	errorLog      *log.Logger
+	infoLog       *log.Logger
+	jokes         *models.JokeModel
+	templateCache map[string]*template.Template
 }
 
 var cfg config
@@ -40,10 +42,16 @@ func main() {
 	}
 	defer db.Close()
 
+	templateCache, err := newTemplateCache()
+	if err != nil {
+		errorLog.Fatal(err)
+	}
+
 	app := &application{
-		errorLog: errorLog,
-		infoLog:  infoLog,
-		jokes:    &models.JokeModel{DB: db},
+		errorLog:      errorLog,
+		infoLog:       infoLog,
+		jokes:         &models.JokeModel{DB: db},
+		templateCache: templateCache,
 	}
 
 	srv := &http.Server{
@@ -58,7 +66,7 @@ func main() {
 }
 
 func openDB(dsn string) (*sql.DB, error) {
-	db, err := sql.Open("mysql", cfg.dsn)
+	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		return nil, err
 	}

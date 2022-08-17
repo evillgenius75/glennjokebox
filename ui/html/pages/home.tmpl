@@ -13,8 +13,8 @@
 				{{range .Jokes}}
 				<tr>
 					<td>#{{.ID}}</td>
-                    <td><a class='long-and-truncated' href='/joke/view?id={{.ID}}'>{{.Joke}}</a></td>
-                    <td>{{.CreatedAt}}</td>
+                    <td><a class='long-and-truncated' href='/v1/joke/view/{{.ID}}'>{{.Joke}}</a></td>
+                    <td>{{humanDate .CreatedAt}}</td>
                 </tr>
                 {{end}}
             </table>
