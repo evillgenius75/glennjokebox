@@ -35,7 +35,7 @@ var cfg config
 
 func main() {
 
-	flag.StringVar(&cfg.addr, "addr", os.Getenv("PORT"), "HTTP Network Address")
+	flag.StringVar(&cfg.addr, "addr", ":"+os.Getenv("PORT"), "HTTP Network Address")
 	flag.StringVar(&cfg.staticDir, "static-dir", "./ui/static", "Path to static assets")
 	flag.StringVar(&cfg.dsn, "dsn", os.Getenv("DSN"), "mySQL Connection String")
 	flag.Parse()
