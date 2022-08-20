@@ -2,14 +2,20 @@
 <nav>
 	<div>
 		<a href='/'>Home</a>
+		{{if .IsAuthenticated}}
 		<a href='/v1/joke/create'>Create Joke</a>
+		{{end}}
 	</div>
 	<div>
-		<a href='/v1/user/signup'>Signup</a>
-		<a href='/v1/user/login'>Login</a>
+		{{if .IsAuthenticated}}
 		<form action='/v1/user/logout' method="POST">
+			<input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
 			<button>Logout</button>
 		</form>
+		{{else}}
+			<a href='/v1/user/signup'>Signup</a>
+			<a href='/v1/user/login'>Login</a>
+		{{end}}
 	</div>
 </nav>
 {{ end }}

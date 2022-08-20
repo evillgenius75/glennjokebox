@@ -53,7 +53,7 @@ WHERE id=?`
 
 func (m *JokeModel) Latest() ([]*Joke, error) {
 	stmt := `SELECT id, uuid, joke, explicit, created_at, updated_at FROM joke_results
-WHERE updated_at < UTC_TIMESTAMP() ORDER BY id DESC LIMIT 5`
+ORDER BY RAND() LIMIT 10`
 	rows, err := m.DB.Query(stmt)
 	if err != nil {
 		return nil, err

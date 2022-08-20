@@ -35,15 +35,15 @@ var cfg config
 
 func main() {
 
-	flag.StringVar(&cfg.addr, "addr", ":8080", "HTTP Network Address")
+	flag.StringVar(&cfg.addr, "addr", os.Getenv("PORT"), "HTTP Network Address")
 	flag.StringVar(&cfg.staticDir, "static-dir", "./ui/static", "Path to static assets")
-	flag.StringVar(&cfg.dsn, "dsn", "root:Aikido1975@tcp(127.0.0.1:3306)/jokebox?parseTime=true&Local", "mySQL Connection String")
+	flag.StringVar(&cfg.dsn, "dsn", os.Getenv("DSN"), "mySQL Connection String")
 	flag.Parse()
 
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
-	db, err := openDB(cfg.dsn)
+	db, err := connectWithConnector()
 	if err != nil {
 		errorLog.Fatal(err)
 	}

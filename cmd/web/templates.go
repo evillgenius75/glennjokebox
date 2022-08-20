@@ -2,23 +2,27 @@ package main
 
 import (
 	"github.com/evillgenius75/glennjokebox/internal/models"
+	"github.com/evillgenius75/glennjokebox/ui"
 	"html/template"
+	"io/fs"
 	"path/filepath"
 	"time"
 )
 
 type templateData struct {
-	CurrentYear int
-	Joke        *models.Joke
-	Jokes       []*models.Joke
-	Form        any
-	Flash       string
+	CurrentYear     int
+	Joke            *models.Joke
+	Jokes           []*models.Joke
+	Form            any
+	Flash           string
+	IsAuthenticated bool
+	CSRFToken       string
 }
 
 func newTemplateCache() (map[string]*template.Template, error) {
 	cache := map[string]*template.Template{}
 
-	pages, err := filepath.Glob("./ui/html/pages/*tmpl")
+	pages, err := fs.Glob(ui.Files, "html/pages/*tmpl")
 	if err != nil {
 		return nil, err
 	}
@@ -32,17 +36,13 @@ func newTemplateCache() (map[string]*template.Template, error) {
 		//	page,
 		//}
 
-		ts, err := template.New(name).Funcs(functions).ParseFiles("./ui/html/base.tmpl")
-		if err != nil {
-			return nil, err
+		patterns := []string{
+			"html/base.tmpl",
+			"html/partials/*tmpl",
+			page,
 		}
 
-		ts, err = ts.ParseGlob("./ui/html/partials/*.tmpl")
-		if err != nil {
-			return nil, err
-		}
-
-		ts, err = ts.ParseFiles(page)
+		ts, err := template.New(name).Funcs(functions).ParseFS(ui.Files, patterns...)
 		if err != nil {
 			return nil, err
 		}
